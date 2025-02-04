@@ -4,8 +4,8 @@ import random
 from openai import OpenAI
 
 # Replace this with your actual API key.
-with open("api_key.txt", "r") as file:
-   api_key = file.read()
+with open("key_file.txt", "r") as file:
+   key = file.read()
 
 class Poster:
     def __init__(self, api_key, opinion_axes):

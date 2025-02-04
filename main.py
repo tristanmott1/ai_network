@@ -9,7 +9,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import networkx as nx
 from network_backend import Network
-from chatgpt_interface import Poster, api_key
+from chatgpt_interface import Poster
 from scipy.stats import beta
 
 # ---------------- Global Parameters ----------------
@@ -24,6 +24,8 @@ user_alpha = 0.5
 strategic_agents = [[0, 1], [1, 0.5]]  # Two strategic agents.
 strategic_theta = 2
 clock_cycle = 3  # seconds per cycle
+with open("key_file.txt", "r") as file:
+   api_key = file.read()
 
 opinion_axes = [
     {

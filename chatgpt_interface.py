@@ -3,10 +3,6 @@ import ast
 import random
 from openai import OpenAI
 
-# Replace this with your actual API key.
-with open("key_file.txt", "r") as file:
-   key = file.read()
-
 class Poster:
     def __init__(self, api_key, opinion_axes):
         self.client = OpenAI(api_key=api_key)

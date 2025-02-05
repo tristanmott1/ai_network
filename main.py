@@ -16,13 +16,13 @@ from scipy.stats import beta
 n_agents = 20
 n_opinions = 2
 init_X = np.column_stack((np.random.random(n_agents), beta.rvs(a=13, b=4, size=20)))
-theta = 8
+theta = 5
 min_prob = 0.01
 alpha_filter = 1
 user_agents = [[0.5, 0.75]]
 user_alpha = 0.5
 strategic_agents = [[0, 1], [1, 0.5]]  # Two strategic agents.
-strategic_theta = 2
+strategic_theta = 20
 clock_cycle = 3  # seconds per cycle
 with open("key_file.txt", "r") as file:
    api_key = file.read()

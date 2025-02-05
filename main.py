@@ -11,14 +11,15 @@ import networkx as nx
 from network_backend import Network
 from chatgpt_interface import Poster
 from scipy.stats import beta
+import random
 
 # ---------------- Global Parameters ----------------
 n_agents = 20
 n_opinions = 2
-init_X = np.column_stack((np.random.random(n_agents), beta.rvs(a=14, b=6, size=20)))
-theta = 9
+init_X = np.column_stack((np.random.random(n_agents), beta.rvs(a=14, b=7, size=20)))
+theta = 5
 min_prob = 0.001
-alpha_filter = 0.75
+alpha_filter = 0.9
 user_agents = [[0.5, 0.75]]
 user_alpha = 0.5
 strategic_agents = [[0, 1], [1, 0.5]]  # Two strategic agents.
@@ -248,12 +249,11 @@ class ChatGUI:
     def simulation_loop(self):
         global clock_cycle, bot_names, strategic_agents
         user_posted_last_cycle = False
+        X, A, _ = self.network.get_state()
         while self.running:
             start_time = time.time()
             # Flush the ChatGPT history at the beginning of each cycle.
             self.poster.flush_history()
-            # Update the network state.
-            X, A, timestep = self.network.update_network(include_user_opinions=user_posted_last_cycle)
             user_posted_last_cycle = False
             # Update visualizations.
             self.update_visualizations(X, A)
@@ -279,6 +279,7 @@ class ChatGUI:
                     self.pending_user_post = None
             # Process friend posts – each friend posts only once per cycle.
             friend_indices = [i for i in range(A.shape[0]) if i != 0 and A[0, i] == 1]
+            random.shuffle(friend_indices)
             num_friends = len(friend_indices)
             delay = clock_cycle / num_friends if num_friends > 0 else clock_cycle
             for friend in friend_indices:
@@ -290,6 +291,8 @@ class ChatGUI:
                 except Exception as e:
                     post = "Default post."
                 self.add_feed_message(f"{friend_name}: {post}", sender_index=friend, opinion_vector=friend_opinion)
+            # Update the network state.
+            X, A, _ = self.network.update_network(include_user_opinions=user_posted_last_cycle)
             elapsed = time.time() - start_time
             if elapsed < clock_cycle:
                 time.sleep(clock_cycle - elapsed)

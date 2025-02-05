@@ -60,7 +60,7 @@ class Poster:
         system_prompt += "3. Use stronger language for values near 0 or 1, moderate for values near 0.5\n"
         system_prompt += "4. Sound like a real social media user\n"
         system_prompt += "5. If you don't have an extreme position, avoid stereotyping. Leverage the precision opinion value.\n"
-        system_prompt += "6. Never reference other users\n"
+        system_prompt += "6. Integrate your opinions into a response to previous users, often using their names\n"
         respond = random.choice([True, False])
         if respond and self.chat_history:
             system_prompt += "\nCurrent conversation:\n"

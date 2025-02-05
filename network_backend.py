@@ -49,7 +49,7 @@ def get_strategic_opinion(a, X, target, theta=7):
     if np.sum(a) > 0:
         neighbor_x = X.copy()[a == 1]
         neighbor_dists = np.sqrt(np.sum((neighbor_x - target) ** 2, axis=1))
-        weights = np.append(neighbor_dists, np.min(neighbor_dists) * 2)
+        weights = np.append(neighbor_dists, np.min(neighbor_dists) / 2)
         weights /= np.sum(weights)
         weights = weights ** theta
         weights /= np.sum(weights)
@@ -97,12 +97,12 @@ class Network:
         self.n_strategic_agents = len(strategic_agents)
         self.strategic_agents = strategic_agents.copy()
         self.strategic_theta = strategic_theta
-        for i in range(self.n_strategic_agents):
-            if self.strategic_agents[i] is None:
-                self.strategic_agents[i] = self.X[-i]
+        for i in range(1, self.n_strategic_agents + 1):
+            if self.strategic_agents[-i] is None:
+                self.strategic_agents[-i] = self.X[-i]
             else:
-                assert len(self.strategic_agents[i]) == n_opinions
-                self.X[-i] = self.strategic_agents[i]
+                assert len(self.strategic_agents[-i]) == n_opinions
+                self.X[-i] = self.strategic_agents[-i]
         self.strategic_agents = np.array(self.strategic_agents)
 
         if A is None:
@@ -129,10 +129,8 @@ class Network:
         new_X = get_W(s_norm, adjusted_A) @ self.X
 
         if self.n_strategic_agents > 0:
-            new_X[-self.n_strategic_agents:] = np.array([
-                get_strategic_opinion(self.A[-i], self.X, self.strategic_agents[-i], theta=self.strategic_theta)
-                for i in range(1, self.n_strategic_agents + 1)
-            ])
+            for i in range(1, self.n_strategic_agents + 1):
+                new_X[-i] = get_strategic_opinion(adjusted_A[-i], self.X, self.strategic_agents[-i], theta=self.strategic_theta)
 
         self.X = self.alpha_filter * new_X + (1 - self.alpha_filter) * self.X
         self.A = update_A(s_norm, theta=self.theta, min_prob=self.min_prob)

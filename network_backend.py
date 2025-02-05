@@ -31,11 +31,11 @@ def get_row_scaled_matrix(M):
     S[diag_mask] = 0
     return S
 
-def get_W(s_norm, A, theta=1, epsilon=1e-10):
+def get_W(s_norm, A):
     n = len(s_norm)
     return s_norm * A + np.identity(n) - diag((s_norm * A) @ np.ones(n))
 
-def update_A(s_norm, theta=1, min_prob=0.01, epsilon=1e-10):
+def update_A(s_norm, theta=1, min_prob=0.01):
     s_hat = get_row_scaled_matrix(s_norm) ** theta
     s_hat[s_hat < min_prob] = min_prob
     s_hat -= np.triu(s_hat)
@@ -51,6 +51,16 @@ def get_strategic_opinion(a, X, target, theta=7):
         neighbor_dists = np.sqrt(np.sum((neighbor_x - target) ** 2, axis=1))
         weights = np.append(neighbor_dists, np.min(neighbor_dists))
         weights /= np.sum(weights)
+
+        # FIXME: testing to see if strategic agents act smarter this way
+        # min_weight = 0.3
+        # weights = 1 - weights
+        # dif = weights.max() - weights.min()
+        # if dif == 0:
+        #     return target
+        # else:
+        #     weights = (1 - min_weight) * ((weights - weights.min()) / dif) + min_weight
+
         weights = weights ** theta
         weights /= np.sum(weights)
         return weights @ np.vstack((neighbor_x, target))
@@ -119,9 +129,13 @@ class Network:
         self.user_agents[user_index] = self.user_alpha * np.array(opinion) + (1 * self.user_alpha) * self.user_agents[user_index]
         self.X[user_index] = self.user_agents[user_index]
 
-    def update_network(self):
+    def update_network(self, include_user_opinions=True):
         s_norm = get_s_norm(self.X)
-        new_X = get_W(s_norm, self.A) @ self.X
+        adjusted_A = self.A.copy()
+        if include_user_opinions == False:
+            adjusted_A[:self.n_user_agents] = 0
+            adjusted_A[:, :self.n_user_agents] = 0
+        new_X = get_W(s_norm, adjusted_A) @ self.X
 
         if self.n_strategic_agents > 0:
             new_X[-self.n_strategic_agents:] = np.array([

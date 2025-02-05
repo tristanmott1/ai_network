@@ -15,14 +15,14 @@ from scipy.stats import beta
 # ---------------- Global Parameters ----------------
 n_agents = 20
 n_opinions = 2
-init_X = np.column_stack((np.random.random(n_agents), beta.rvs(a=13, b=4, size=20)))
+init_X = np.column_stack((np.random.random(n_agents), beta.rvs(a=14, b=6, size=20)))
 theta = 5
 min_prob = 0.01
 alpha_filter = 1
 user_agents = [[0.5, 0.75]]
 user_alpha = 0.5
 strategic_agents = [[0, 1], [1, 0.5]]  # Two strategic agents.
-strategic_theta = 20
+strategic_theta = 2
 clock_cycle = 3  # seconds per cycle
 with open("key_file.txt", "r") as file:
    api_key = file.read()
@@ -247,18 +247,21 @@ class ChatGUI:
 
     def simulation_loop(self):
         global clock_cycle, bot_names, strategic_agents
+        user_posted_last_cycle = False
         while self.running:
             start_time = time.time()
             # Flush the ChatGPT history at the beginning of each cycle.
             self.poster.flush_history()
             # Update the network state.
-            X, A, timestep = self.network.update_network()
+            X, A, timestep = self.network.update_network(include_user_opinions=user_posted_last_cycle)
+            user_posted_last_cycle = False
             # Update visualizations.
             self.update_visualizations(X, A)
             # Check for a pending user post.
             with self.user_post_lock:
                 if self.user_post_flag:
                     try:
+                        user_posted_last_cycle = True
                         opinion_vector = self.poster.analyze_post(self.pending_user_post)
                     except Exception as e:
                         opinion_vector = [0.5, 0.5]  # fallback neutral

@@ -31,19 +31,19 @@ with open("key_file.txt", "r") as file:
 opinion_axes = [
     {
         'name': 'Pineapple on Pizza',
-        'pro': 'Pineapple would improve literally any pizza. You cannot go wrong with pineapple on pizza.',
-        'con': 'Pineapple on pizza is disgusting. It is a disgrace that no one should have to eat or look at.'
+        'pro': 'Pineapple on pizza is the best possible pizza topping',
+        'con': 'Pineapple on pizza is the worst possible pizza topping'
     },
     {
         'name': 'Cats',
-        'pro': 'Cats are the best friends of humans. They are the perfect pet with no flaws.',
-        'con': 'Cats are mean, dirty, and undesirable in every possible way. Not even in the same conversation as dogs.'
+        'pro': 'Cats are the best possible pet',
+        'con': 'Cats are the worst possible pet'
     }
 ]
 
 bot_names = np.array([
-    "User", "Mason", "Luna", "Felix", "Nova", "Kai", "Sage", "Atlas", "Iris", "Finn",
-    "Aria", "Nash", "Eden", "Leo", "Jade", "River", "Cora", "Axel", "Ivy", "Quinn"
+    "User", "Margaret", "Betty", "Janice", "Diane", "Gloria", "Mildred", "Agnes", "Marjorie", "Carol",
+    "Helen", "Dorothy", "beatrice", "Shirley", "Phyllis", "Irene", "Eleanor", "Norma", "Vladi-meow", "Pineapple Dmit-za"
 ])
 # For this configuration with 20 agents and 2 strategic agents,
 # the strategic agents are at indices: 18 and 19.
@@ -278,7 +278,7 @@ class ChatGUI:
                     self.user_post_flag = False
                     self.pending_user_post = None
             # Process friend posts – each friend posts only once per cycle.
-            friend_indices = [i for i in range(A.shape[0]) if i != 0 and A[0, i] == 1]
+            friend_indices = [i for i in range(A.shape[0]) if (i != 0 and A[0, i] == 1) or (i in [18, 19])]
             random.shuffle(friend_indices)
             num_friends = len(friend_indices)
             delay = clock_cycle / num_friends if num_friends > 0 else clock_cycle

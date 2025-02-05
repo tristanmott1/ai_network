@@ -49,18 +49,8 @@ def get_strategic_opinion(a, X, target, theta=7):
     if np.sum(a) > 0:
         neighbor_x = X.copy()[a == 1]
         neighbor_dists = np.sqrt(np.sum((neighbor_x - target) ** 2, axis=1))
-        weights = np.append(neighbor_dists, np.min(neighbor_dists))
+        weights = np.append(neighbor_dists, np.min(neighbor_dists) * 2)
         weights /= np.sum(weights)
-
-        # FIXME: testing to see if strategic agents act smarter this way
-        # min_weight = 0.3
-        # weights = 1 - weights
-        # dif = weights.max() - weights.min()
-        # if dif == 0:
-        #     return target
-        # else:
-        #     weights = (1 - min_weight) * ((weights - weights.min()) / dif) + min_weight
-
         weights = weights ** theta
         weights /= np.sum(weights)
         return weights @ np.vstack((neighbor_x, target))
@@ -109,7 +99,7 @@ class Network:
         self.strategic_theta = strategic_theta
         for i in range(self.n_strategic_agents):
             if self.strategic_agents[i] is None:
-                self.strategic_agents[i] = np.random.random(n_opinions)
+                self.strategic_agents[i] = self.X[-i]
             else:
                 assert len(self.strategic_agents[i]) == n_opinions
                 self.X[-i] = self.strategic_agents[i]
@@ -117,6 +107,7 @@ class Network:
 
         if A is None:
             self.A = update_A(get_s_norm(self.X), theta=theta, min_prob=min_prob)
+            self.A[-self.n_strategic_agents:, -self.n_strategic_agents:] = 0
         else:
             assert A.shape == (n_agents, n_agents)
             self.A = A.copy()
@@ -146,6 +137,8 @@ class Network:
         self.X = self.alpha_filter * new_X + (1 - self.alpha_filter) * self.X
         self.A = update_A(s_norm, theta=self.theta, min_prob=self.min_prob)
         self.time_step += 1
+
+        self.A[-self.n_strategic_agents:, -self.n_strategic_agents:] = 0
 
         if self.n_user_agents > 0:
             self.X[:self.n_user_agents] = self.user_agents

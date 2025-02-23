@@ -55,7 +55,7 @@ def get_strategic_opinion(a, X, target, theta=7):
         weights /= np.sum(weights)
         return weights @ np.vstack((neighbor_x, target))
     else:
-        return target
+        return np.mean(X, axis=0)
 
 class Network:
     def __init__(self, n_agents=50, n_opinions=3, X=None, A=None, theta=7, min_prob=0.01, alpha_filter=0.5,
@@ -102,12 +102,13 @@ class Network:
                 self.strategic_agents[i] = self.X[i + self.n_agents - self.n_strategic_agents]
             else:
                 assert len(self.strategic_agents[i]) == n_opinions
-                self.X[i + self.n_agents - self.n_strategic_agents] = self.strategic_agents[i]
+            self.X[i + self.n_agents - self.n_strategic_agents] = np.mean(self.X[:-self.n_strategic_agents], axis=0)
         self.strategic_agents = np.array(self.strategic_agents)
 
         if A is None:
             self.A = update_A(get_s_norm(self.X), theta=theta, min_prob=min_prob)
-            self.A[-self.n_strategic_agents:, -self.n_strategic_agents:] = 0
+            if self.n_strategic_agents > 0:
+                self.A[-self.n_strategic_agents:, -self.n_strategic_agents:] = 0
         else:
             assert A.shape == (n_agents, n_agents)
             self.A = A.copy()
@@ -136,7 +137,8 @@ class Network:
         self.A = update_A(s_norm, theta=self.theta, min_prob=self.min_prob)
         self.time_step += 1
 
-        self.A[-self.n_strategic_agents:, -self.n_strategic_agents:] = 0
+        if self.n_strategic_agents > 0:
+            self.A[-self.n_strategic_agents:, -self.n_strategic_agents:] = 0
 
         if self.n_user_agents > 0:
             self.X[:self.n_user_agents] = self.user_agents

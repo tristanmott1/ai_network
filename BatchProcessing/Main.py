@@ -56,7 +56,7 @@ def main():
     genbatch_parser.add_argument('gen_method', type=str, help="Name of Batch Generator Function")
     genbatch_parser.add_argument('file_name', type=str, help="The name of the batch file to generate. Do not include file extension.")
     genbatch_parser.add_argument('--model', type=str, default='gpt-4o-mini', help="Model to use (default gpt-4o-mini)")
-    genbatch_parser.add_argument('--max_tokens', type=int, default=100, help="Number of retries (default is 100)")
+    genbatch_parser.add_argument('--max_tokens', type=int, default=100, help="Max output tokens (default is 100)")
 
     # sendbatch command
     sendbatch_parser = subparsers.add_parser('sendbatch', help="Send a batch file")

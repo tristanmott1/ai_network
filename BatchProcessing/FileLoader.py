@@ -2,6 +2,9 @@ import json
 from pathlib import Path
 import shutil  # New import for copying files
 
+
+'''Specialized file loader for use by the batch generator and processor files'''
+
 def save_analysis(foldername, win_distribution, result_distribution, result_str, jsonl_file_path=None):
     """
     Saves two dictionaries, a result string, and optionally a JSONL file into specified files within a structured folder.
